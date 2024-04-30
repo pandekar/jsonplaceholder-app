@@ -12,11 +12,8 @@ export default function Users({ data, error, isLoading }) {
         </div>
       </div>
       {isLoading ?
-        (<div className="flex items-center justify-center flex-1 h-[50vh]">
-          <span
-            className="loading loading-spinner loading-lg"
-            data-testid="loading-main-data"
-          ></span>
+        (<div className="flex items-center justify-center flex-1 mt-7">
+          <span>loading users...</span>
         </div>) :
         <div className='p-10 overflow-x-auto'>
           <table className="table">
