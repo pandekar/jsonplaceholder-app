@@ -70,6 +70,22 @@ export const jsonplaceholderApi = createApi({
       }),
       invalidatesTags: ['jsonPlaceholderApi']
     }),
+    putPost: builder.mutation({
+      query: (data) => ({
+        url: `/posts/${data.id}`,
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: JSON.stringify({
+          id: data.id,
+          title: data.title,
+          body: data.body,
+          userId: data.userId
+        })
+      }),
+      invalidatesTags: ['jsonPlaceholderApi']
+    }),
     getAlbumsByUserId: builder.query({
       query: (id) => ({
         url: `/users/${id}/albums`,
@@ -100,6 +116,7 @@ export const {
   useGetPostByIdQuery,
   useGetPostCommentsByIdQuery,
   usePostPostMutation,
+  usePutPostMutation,
   useGetAlbumsByUserIdQuery,
   useGetAlbumPhotosByAlbumIdQuery,
 } = jsonplaceholderApi;

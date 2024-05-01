@@ -8,14 +8,21 @@ import {
   useGetPostByUserIdQuery,
   useGetAlbumsByUserIdQuery,
   usePostPostMutation,
+  usePutPostMutation,
+  useGetPostByIdQuery,
 } from '../../redux/jsonplaceholderApi';
 
 export default function UserDetail() {
+  const [postId, setPostId] = React.useState(null);
+
   const { id: userId } = useParams();
   const { data: user, isFetching: isFetchingUser } = useGetUserByIdQuery(userId)
   const { data: userPosts, isFetching: isFetchingUserPosts } = useGetPostByUserIdQuery(userId)
   const { data: userAlbums, isFetching: isFetchingUserAlbums } = useGetAlbumsByUserIdQuery(userId)
+  const { data: post, refetch: refetchPost } = useGetPostByIdQuery(postId)
+  
   const [postPost] = usePostPostMutation();
+  const [putPost] = usePutPostMutation();
 
   const [form, setForm] = React.useState({
     title: '',
@@ -30,6 +37,12 @@ export default function UserDetail() {
       setLocalUserPosts(userPosts)
     }
   }, [userPosts])
+
+  const showPostEditable = (id) => {
+    setPostId(id);
+    refetchPost()
+    window.edit.showModal();
+  };
 
   const addPost = () => {
     setForm(prev => ({
@@ -56,6 +69,31 @@ export default function UserDetail() {
           newData
         ]
         setLocalUserPosts(newDatas)
+      })
+
+    setForm(prev => ({
+      ...prev,
+      title: '',
+      body: '',
+      userId: '',
+    }));
+  }
+
+  const updatePost = () => {
+    const data = {
+      id: postId,
+      title: form?.title ? form.title : post.title,
+      body: form?.body ? form.body : post.body,
+      userId
+    }
+
+    putPost({...data})
+      .then((response) => {
+        const newUpdateData = response.data
+        const postIndex = localUserPosts.findIndex((post) => post.id === newUpdateData.id)
+        const newPostsLocalData = [...localUserPosts]
+        newPostsLocalData[postIndex] = newUpdateData
+        setLocalUserPosts(newPostsLocalData)
       })
 
     setForm(prev => ({
@@ -97,21 +135,47 @@ export default function UserDetail() {
           </button>
         </div>
         <div className='flex border rounded-md p-2 mb-6'>
-          {isFetchingUserPosts ?
+          {isFetchingUserPosts || !localUserPosts.length ?
             <div>Loading...</div> :
-            <div>
-              {localUserPosts.length && localUserPosts.map((post, index) => {
-                return (
-                  <div key={index}>
-                    <Link
-                      to={`post/${post.id}`}
-                      state={{user, post}}
-                    >
-                      <div className='border-b p-1'>{post.title}</div>
-                    </Link>
-                  </div>
-                );
-              })}
+            <div className='p-2 overflow-x-auto'>
+              <table className='table'>
+                <thead className="text-sm">
+                <tr>
+                  <th className="text-center">Title</th>
+                  <th className="text-center">Body</th>
+                  <th className="text-center">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                  {localUserPosts.map((post, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{post.title}</td>
+                        <td>{post.body}</td>
+                        <td className='flex flex-row justify-center gap-1'>
+                          <div className='border border-gray-950 rounded-md hover:bg-black hover:text-white px-2 font-bold'>
+                            <Link
+                              to={`post/${post.id}`}
+                              state={{user, post}}
+                            >
+                              DETAIL
+                            </Link>
+                          </div>
+                          <div className='border border-blue-500 rounded-md hover:bg-blue-500 hover:text-white px-2 font-bold'>
+                            <button
+                              name='edit'
+                              onClick={() => showPostEditable(post.id)}
+                            >
+                              EDIT
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      )
+                    })
+                  }
+                </tbody>
+              </table>
             </div>
           }
         </div>
@@ -186,12 +250,75 @@ export default function UserDetail() {
               className='flex flex-row items-center justify-center border border-gray-950 rounded-md hover:bg-black hover:text-white p-2'
               onClick={submitPost}
             >
-              Add Contact
+              Add Post
             </button>
           </div>
         </form>
       </dialog>
       {/* add */}
+
+      {/* edit */}
+      <dialog id="edit" className='w-1/2 p-4 rounded-lg'>
+        <form method="dialog">
+          <button
+            htmlFor="edit"
+            className="absolute right-4 top-4"
+          >
+            ✕
+          </button>
+          <h3 className="text-lg font-bold">Edit Post</h3>
+          <div className="mt-5">
+            <div className="flex flex-col gap-8">
+              <div>
+                <small className="text-xs font-semibold text-red-500">
+                  Nb: Fill in the form if you want to make a change
+                </small>
+                <h4 className="py-4 font-semibold">Title</h4>
+                <input
+                  type="text"
+                  name="title"
+                  placeholder={post?.title}
+                  className="w-full p-2"
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                  value={form?.title}
+                />
+              </div>
+              <div>
+                <h4 className="py-4 font-semibold">Body</h4>
+                <input
+                  type="text"
+                  name="body"
+                  placeholder={post?.body}
+                  className="w-full input input-bordered p-2"
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      body: e.target.value,
+                    }))
+                  }
+                  value={form?.body}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-row-reverse">
+            <button
+              className='flex flex-row items-center justify-center border border-gray-950 rounded-md hover:bg-black hover:text-white p-2'
+              onClick={updatePost}
+            >
+              Update Post
+            </button>
+          </div>
+        </form>
+      </dialog>
+      {/* edit */}
+
+
     </div>
   )
 }
