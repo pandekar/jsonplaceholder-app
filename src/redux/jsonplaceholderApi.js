@@ -55,6 +55,21 @@ export const jsonplaceholderApi = createApi({
       }),
       providesTags: ["jsonPlaceholderApi"]
     }),
+    postPost: builder.mutation({
+      query: (data) => ({
+        url: '/posts',
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: JSON.stringify({
+          title: data.title,
+          body: data.body,
+          userId: data.userId
+        })
+      }),
+      invalidatesTags: ['jsonPlaceholderApi']
+    }),
     getAlbumsByUserId: builder.query({
       query: (id) => ({
         url: `/users/${id}/albums`,
@@ -84,6 +99,7 @@ export const {
   useGetPostByUserIdQuery,
   useGetPostByIdQuery,
   useGetPostCommentsByIdQuery,
+  usePostPostMutation,
   useGetAlbumsByUserIdQuery,
   useGetAlbumPhotosByAlbumIdQuery,
 } = jsonplaceholderApi;

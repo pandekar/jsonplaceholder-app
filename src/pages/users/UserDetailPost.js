@@ -3,12 +3,13 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { BiArrowBack } from "react-icons/bi";
 import { BiReply } from "react-icons/bi";
 import { IoPersonCircleOutline } from "react-icons/io5";
-import { useGetPostByIdQuery, useGetPostCommentsByIdQuery } from '../../redux/jsonplaceholderApi';
+import { useGetPostCommentsByIdQuery } from '../../redux/jsonplaceholderApi';
 
 export default function UserDetailPost() {
-  const params = useParams()
-  const { state: { name, email } } = useLocation()
-  const { data: post, isFetching: isFetchingPost } = useGetPostByIdQuery(params.postId);
+  const params = useParams();
+  const { state: { user, post } } = useLocation();
+  const { name, email } = user;
+  const { title, body } = post;
   const { data: comments, isFetching: isFetchingComments } = useGetPostCommentsByIdQuery(params.postId);
 
   return (
@@ -28,13 +29,10 @@ export default function UserDetailPost() {
           </div>
         </div>
 
-        { !isFetchingPost ?
-          <div className='flex flex-col mb-10'>
-            <span className='text-3xl'>{post.title}</span>
-            <span className='text-xl'>{post.body}</span>
-          </div> :
-          <div>Loading post...</div>
-        }
+        <div className='flex flex-col mb-10'>
+          <span className='text-3xl'>{title}</span>
+          <span className='text-xl'>{body}</span>
+        </div> 
         { !isFetchingComments ?
           <div>
             {comments.map((comment, index) => {
