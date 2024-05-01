@@ -86,6 +86,13 @@ export const jsonplaceholderApi = createApi({
       }),
       invalidatesTags: ['jsonPlaceholderApi']
     }),
+    deletePost: builder.mutation({
+      query: (id) => ({
+        url: `/posts/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['jsonPlaceholderApi']
+    }),
     getAlbumsByUserId: builder.query({
       query: (id) => ({
         url: `/users/${id}/albums`,
@@ -117,6 +124,7 @@ export const {
   useGetPostCommentsByIdQuery,
   usePostPostMutation,
   usePutPostMutation,
+  useDeletePostMutation,
   useGetAlbumsByUserIdQuery,
   useGetAlbumPhotosByAlbumIdQuery,
 } = jsonplaceholderApi;

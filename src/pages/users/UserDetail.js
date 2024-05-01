@@ -10,6 +10,7 @@ import {
   usePostPostMutation,
   usePutPostMutation,
   useGetPostByIdQuery,
+  useDeletePostMutation,
 } from '../../redux/jsonplaceholderApi';
 
 export default function UserDetail() {
@@ -23,6 +24,7 @@ export default function UserDetail() {
   
   const [postPost] = usePostPostMutation();
   const [putPost] = usePutPostMutation();
+  const [deletePost] = useDeletePostMutation();
 
   const [form, setForm] = React.useState({
     title: '',
@@ -37,6 +39,11 @@ export default function UserDetail() {
       setLocalUserPosts(userPosts)
     }
   }, [userPosts])
+
+  const showDeleteModal = (id) => {
+    setPostId(id);
+    window.delete.showModal();
+  };
 
   const showPostEditable = (id) => {
     setPostId(id);
@@ -104,6 +111,12 @@ export default function UserDetail() {
     }));
   }
 
+  const destroyPost = (postId) => {
+    deletePost(postId)
+    const newPostsLocalData = localUserPosts.filter((post) => post.id !== postId)
+    setLocalUserPosts(newPostsLocalData)
+  }
+
   return (
     <div className='p-2'>
       {/* back navigation */}
@@ -167,6 +180,14 @@ export default function UserDetail() {
                               onClick={() => showPostEditable(post.id)}
                             >
                               EDIT
+                            </button>
+                          </div>
+                          <div className='border border-red-500 rounded-md hover:bg-red-500 hover:text-white px-2 font-bold'>
+                            <button
+                              name='delete'
+                              onClick={() => showDeleteModal(post.id)}
+                            >
+                              DELETE
                             </button>
                           </div>
                         </td>
@@ -318,7 +339,28 @@ export default function UserDetail() {
       </dialog>
       {/* edit */}
 
-
+      {/* delete */}
+      <dialog id="delete" className="w-1/3 p-4 rounded-lg">
+        <form method="dialog">
+          <h3 className="text-lg font-bold">Delete Post</h3>
+          <p className="py-4">Are you sure to delete this post?</p>
+          <div className="flex flex-row gap-2">
+            {/* if there is a button in form, it will close the modal */}
+            <button
+              className='flex flex-row items-center justify-center border border-red-300 bg-red-300 rounded-md hover:bg-red-500 hover:text-white p-2 w-28'
+              onClick={() => destroyPost(postId)}
+            >
+              yes, delete
+            </button>
+            <button
+              className='flex flex-row items-center justify-center border border-blue-300 bg-blue-300 rounded-md hover:bg-blue-500 hover:text-white p-2 w-28'
+            >
+              cancel
+            </button>
+          </div>
+        </form>
+      </dialog>
+      {/* delete */}
     </div>
   )
 }
