@@ -55,6 +55,21 @@ export const jsonplaceholderApi = createApi({
       }),
       providesTags: ["jsonPlaceholderApi"]
     }),
+    postComment: builder.mutation({
+      query: (data) => ({
+        url: `/posts/${data.postId}/comments`,
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          body: data.body,
+        })
+      }),
+      invalidatesTags: ['jsonPlaceholderApi']
+    }),
     postPost: builder.mutation({
       query: (data) => ({
         url: '/posts',
@@ -122,6 +137,7 @@ export const {
   useGetPostByUserIdQuery,
   useGetPostByIdQuery,
   useGetPostCommentsByIdQuery,
+  usePostCommentMutation,
   usePostPostMutation,
   usePutPostMutation,
   useDeletePostMutation,
