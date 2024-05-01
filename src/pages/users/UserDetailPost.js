@@ -6,6 +6,7 @@ import { IoPersonCircleOutline } from "react-icons/io5";
 import { TbMessageDots } from "react-icons/tb";
 import { useGetPostCommentsByIdQuery, usePostCommentMutation } from '../../redux/jsonplaceholderApi';
 import { HiPencil } from "react-icons/hi2";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 export default function UserDetailPost() {
   const params = useParams();
@@ -121,6 +122,17 @@ export default function UserDetailPost() {
     }))
   }
 
+  const showDeleteModal = (id) => {
+    setCommentId(id);
+    window.delete.showModal();
+  };
+
+  const destroyComment = (commentId) => {
+    console.log(commentId)
+    const newLocalCommentsData = localComments.filter((comment) => comment.id !== commentId);
+    setLocalComments(newLocalCommentsData)
+  }
+
   return (
     <div className='p-2'>
       <Link to={`/users/${params.id}`}>
@@ -167,12 +179,18 @@ export default function UserDetailPost() {
                     <div className='mt-2 text-xl'>
                       <span>{comment.body}</span>
                     </div>
-                    <div className='p-2'>
+                    <div className='p-2 inline-flex gap-2'>
                       <div
                         className='flex items-center justify-center border border-blue-500 rounded-md bg-blue-300 hover:bg-blue-500 p-2 w-8'
                         onClick={() => showCommentEditable(comment.id)}
                       >
                         <HiPencil className='text-white' />
+                      </div>
+                      <div
+                        className='flex items-center justify-center border border-red-500 rounded-md bg-red-300 hover:bg-red-500 p-2 w-8'
+                        onClick={() => showDeleteModal(comment.id)}
+                      >
+                        <FaRegTrashAlt className='text-white' />
                       </div>
                     </div>
                   </div>
@@ -331,6 +349,29 @@ export default function UserDetailPost() {
         </form>
       </dialog>
       {/* edit */}
+
+      {/* delete */}
+      <dialog id="delete" className="w-1/3 p-4 rounded-lg">
+        <form method="dialog">
+          <h3 className="text-lg font-bold">Delete Comment</h3>
+          <p className="py-4">Are you sure to delete this comment?</p>
+          <div className="flex flex-row gap-2">
+            {/* if there is a button in form, it will close the modal */}
+            <button
+              className='flex flex-row items-center justify-center border border-red-300 bg-red-300 rounded-md hover:bg-red-500 hover:text-white p-2 w-28'
+              onClick={() => destroyComment(commentId)}
+            >
+              yes, delete
+            </button>
+            <button
+              className='flex flex-row items-center justify-center border border-blue-300 bg-blue-300 rounded-md hover:bg-blue-500 hover:text-white p-2 w-28'
+            >
+              cancel
+            </button>
+          </div>
+        </form>
+      </dialog>
+      {/* delete */}
     </div>
   )
 };
